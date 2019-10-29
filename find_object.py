@@ -9,7 +9,7 @@ class img_prediction(object):
         config_parser = configparser.RawConfigParser()
         config_parser.read(config_file_path)
 
-        self.ENDPOINT = config_parser.get('CustomVision', 'prediction_endpoint')
+        self.ENDPOINT = config_parser.get('CV', 'prediction_endpoint')
         print(self.ENDPOINT)
 
 
@@ -42,3 +42,7 @@ class img_prediction(object):
             tag_dict[prediction.tagname] = (prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height)
         
         return tag_dict
+
+
+if __name__ == '__main__':
+    prediction = img_prediction()
