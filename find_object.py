@@ -2,7 +2,8 @@ import configparser
 from azure.cognitiveservices.vision.customvision.training import CustomVisionTrainingClient
 from azure.cognitiveservices.vision.customvision.training.models import ImageFileCreateEntry, Region
 from azure.cognitiveservices.vision.customvision.prediction import CustomVisionPredictionClient
-
+import cv2
+##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
 class img_prediction(object):
 
     def __init__(self, config_file_path = r'azure_config.txt'):       
@@ -54,7 +55,37 @@ class img_prediction(object):
         return tag_dict
 
 
+##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
+##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
+##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
+def draw_bounding_boxes(im_path, result_dict):
+    img = cv2.imread(im_path, cv2.IMREAD_COLOR)
+    height, width, channels = img.shape
+    for result in result_dict.values():
+        left = result[0]* width
+        top = result[1]* height
+        w=result[2]* width
+        h = result[3]* height
+        cv2.rectangle(img,(int(left), int(top)),(int(left + w),int(top + h)), (0, 0, 255), 5)
+  
+    window = cv2.namedWindow('image', cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('image', 900, 900)
+    cv2.imshow('image',img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
+##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
+##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
 if __name__ == '__main__':
+    print('WARNING!!!!: CLOSE IMAGES WITH ENTER TO CONITNUE PROGRAMM!!!!')
     prediction = img_prediction()
     results = prediction.predict('./balloon_pic.jpg')
     print(results)
+    draw_bounding_boxes('./balloon_pic.jpg', results)
+    
+
+    results2 = prediction.predict('./balloon_and_robot.jpg')
+    print(results2)
+    draw_bounding_boxes('./balloon_and_robot.jpg', results2)
+
