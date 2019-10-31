@@ -26,12 +26,9 @@ class img_prediction(object):
         self.publish_iteration_name = config_parser.get('CustomVision', 'publish_iteration_name')
         self.project_id = config_parser.get('CustomVision', 'project_id')
 
-        print('Endpoint: ', self.ENDPOINT)
-
-
+      
         
-        
-        self.predictor = CustomVisionPredictionClient('627746c9a7084f74a448c0040ad15a32', 'https://joelcustomvision.cognitiveservices.azure.com/')
+        self.predictor = CustomVisionPredictionClient(self.prediction_key, self.ENDPOINT)
     
         
         
@@ -41,7 +38,7 @@ class img_prediction(object):
     def predict(self, img_path):
         # Open the image and get back the prediction results as a dict with tuple (left, top, width, height)
         with open(img_path, mode="rb") as image_to_predict:
-            results = self.predictor.detect_image('002e7a08-8696-4ca8-8769-fe0cbc2bd9b0', "Iteration0.1", image_to_predict)
+            results = self.predictor.detect_image('002e7a08-8696-4ca8-8769-fe0cbc2bd9b0', self.publish_iteration_name, image_to_predict)
 
         # Display the results, and return them as a dict (Tuple of four for ecery Tag) 
         tag_dict = dict()   
