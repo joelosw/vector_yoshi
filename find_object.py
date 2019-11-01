@@ -46,7 +46,9 @@ class img_prediction(object):
             print("\t" + prediction.tag_name + 
             ": {0:.2f}% bbox.left = {1:.2f}, bbox.top = {2:.2f}, bbox.width = {3:.2f}, bbox.height = {4:.2f}".format(prediction.probability * 100, 
             prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height))
-            if prediction.probability > 0.5:
+            probability = 0.5
+            if prediction.probability > probability:
+                probability = prediction.probability
                 tag_dict[prediction.tag_name] = (prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height)
         
         return tag_dict
