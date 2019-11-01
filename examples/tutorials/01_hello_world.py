@@ -28,8 +28,7 @@ def main():
         print("Say 'Hello Seve Eleven'...")
         robot.behavior.say_text("Hello Seven Eleven")
         #robot.anim.play_animation("Seven Eleven")
-        robot.audio.stream_wav_file('./vector_shutdown.wav', volume=100)
-       
+
 
 if __name__ == "__main__":
     main()
