@@ -35,11 +35,11 @@ class img_prediction(object):
 
 
 
-    def predict(self, img_path):
+    def predict(self, img_path='./balloon_pic.jpg'):
         # Open the image and get back the prediction results as a dict with tuple (left, top, width, height)
         with open(img_path, mode="rb") as image_to_predict:
             results = self.predictor.detect_image('002e7a08-8696-4ca8-8769-fe0cbc2bd9b0', self.publish_iteration_name, image_to_predict)
-            self.predictor.
+            
         # Display the results, and return them as a dict (Tuple of four for ecery Tag) 
         tag_dict = dict()   
         for prediction in results.predictions:
