@@ -4,11 +4,15 @@ from anki_vector.connection import ControlPriorityLevel
 
 
 def drive_to_baloon(bboxes, robot):
-    baloon_left = bboxes[baloon][0]
-    baloon_right = baloon_left + bboxes[balloon][2]
+    baloon_left = bboxes['balloon'][0]
+    baloon_right = baloon_left + bboxes['balloon'][2]
     baloon_midlle = baloon_left * 0.5* baloon_right
-    robot.behavior.turn_in_place(degrees(25 - baloon_midlle*50))
-    robot.behavior.drive_straight(distance_mm(200/(2*bboxes[balloon][2]*0.466307658155)), speed_mmps(500))
+    turn_degree = 25 - baloon_midlle*50
+    distance = 200/(2*bboxes['balloon'][2]*0.466307658155)
+    print(turn_degree)
+    robot.behavior.turn_in_place(degrees(turn_degree))
+    print(distance)
+    robot.behavior.drive_straight(distance_mm(distance), speed_mmps(500))
     
 if __name__ == '__main__':
     args = anki_vector.util.parse_command_args()
