@@ -26,12 +26,9 @@ class img_prediction(object):
         self.publish_iteration_name = config_parser.get('CustomVision', 'publish_iteration_name')
         self.project_id = config_parser.get('CustomVision', 'project_id')
 
-        print('Endpoint: ', self.ENDPOINT)
-
-
+      
         
-        
-        self.predictor = CustomVisionPredictionClient('627746c9a7084f74a448c0040ad15a32', 'https://joelcustomvision.cognitiveservices.azure.com/')
+        self.predictor = CustomVisionPredictionClient(self.prediction_key, self.ENDPOINT)
     
         
         
@@ -48,7 +45,7 @@ class img_prediction(object):
         #                                          image)
 
         with open(img_path, mode="rb") as image_to_predict:
-            results = self.predictor.detect_image('002e7a08-8696-4ca8-8769-fe0cbc2bd9b0', "Iteration0.1", image_to_predict)
+            results = self.predictor.detect_image('002e7a08-8696-4ca8-8769-fe0cbc2bd9b0', self.publish_iteration_name, image_to_predict)
 
         # Display the results, and return them as a dict (Tuple of four for ecery Tag) 
         tag_dict = dict()   
@@ -56,7 +53,9 @@ class img_prediction(object):
             print("\t" + prediction.tag_name + 
             ": {0:.2f}% bbox.left = {1:.2f}, bbox.top = {2:.2f}, bbox.width = {3:.2f}, bbox.height = {4:.2f}".format(prediction.probability * 100, 
             prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height))
-            if prediction.probability > 0.5:
+            probability = 0.5
+            if prediction.probability > probability:
+                probability = prediction.probability
                 tag_dict[prediction.tag_name] = (prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height)
         
         return tag_dict
