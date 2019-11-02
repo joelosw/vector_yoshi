@@ -2,9 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f8027b06-3ead-4a12-869b-73ba0e6459bb" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../../test.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../balloon_and_robot.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/../../balloon_and_robot.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../balloon_pic.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/../../balloon_pic.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/take_picture.py" beforeDir="false" afterPath="$PROJECT_DIR$/take_picture.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/01_hello_world.py" beforeDir="false" afterPath="$PROJECT_DIR$/01_hello_world.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../find_object.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../find_object.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../navigation.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../navigation.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -73,7 +77,7 @@
       <option name="presentableId" value="Default" />
       <updated>1572618965568</updated>
       <workItem from="1572618967203" duration="51000" />
-      <workItem from="1572619643673" duration="4921000" />
+      <workItem from="1572619643673" duration="5338000" />
     </task>
     <servers />
   </component>

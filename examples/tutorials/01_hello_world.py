@@ -27,7 +27,6 @@ def main():
     with anki_vector.Robot(args.serial) as robot:
         print("Say 'Hello Seve Eleven'...")
         robot.behavior.say_text("Hello Seven Eleven")
-        #robot.anim.play_animation("Seven Eleven")
 
 
 if __name__ == "__main__":
