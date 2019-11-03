@@ -3,6 +3,7 @@ from azure.cognitiveservices.vision.customvision.training import CustomVisionTra
 from azure.cognitiveservices.vision.customvision.training.models import ImageFileCreateEntry, Region
 from azure.cognitiveservices.vision.customvision.prediction import CustomVisionPredictionClient
 import cv2
+import anki_vector
 ##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
 class img_prediction(object):
 
@@ -26,7 +27,7 @@ class img_prediction(object):
         self.publish_iteration_name = config_parser.get('CustomVision', 'publish_iteration_name')
         self.project_id = config_parser.get('CustomVision', 'project_id')
 
-
+      
         
         self.predictor = CustomVisionPredictionClient(self.prediction_key, self.ENDPOINT)
     
@@ -35,11 +36,17 @@ class img_prediction(object):
 
 
 
-    def predict(self, img_path='./balloon_pic.jpg'):
+    def predict(self, img_path):
+        with anki_vector.Robot() as robot:
+            robot.camera.init_camera_feed()
+            image = robot.camera.latest_image
+            image.raw_image.show()
+            image.raw_image.save(img_path)
+
         # Open the image and get back the prediction results as a dict with tuple (left, top, width, height)
         with open(img_path, mode="rb") as image_to_predict:
             results = self.predictor.detect_image('002e7a08-8696-4ca8-8769-fe0cbc2bd9b0', self.publish_iteration_name, image_to_predict)
-            
+
         # Display the results, and return them as a dict (Tuple of four for ecery Tag) 
         tag_dict = dict()   
         for prediction in results.predictions:
