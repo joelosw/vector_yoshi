@@ -50,8 +50,13 @@ class img_prediction(object):
         with open(img_path, mode="rb") as image_to_predict:
             results = self.predictor.detect_image('002e7a08-8696-4ca8-8769-fe0cbc2bd9b0', self.publish_iteration_name, image_to_predict)
 
+<<<<<<< HEAD
         # Display the results, and return them as a dict (Tuple of four for ecery Tag)
         tag_dict = dict()
+=======
+        # Display the results, and return them as a dict (Tuple of four for ecery Tag) 
+        tag_dict = dict()   
+>>>>>>> b12cb05cd7b81ce5720ee41abce24d43caa2c4bd
         for prediction in results.predictions:
             print("\t" + prediction.tag_name +
             ": {0:.2f}% bbox.left = {1:.2f}, bbox.top = {2:.2f}, bbox.width = {3:.2f}, bbox.height = {4:.2f}".format(prediction.probability * 100,
