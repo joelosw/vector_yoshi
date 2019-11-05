@@ -2,7 +2,9 @@ import anki_vector
 from find_object import img_prediction
 from anki_vector.util import degrees, distance_mm, speed_mmps
 from anki_vector.connection import ControlPriorityLevel
+from anki_vector import behavior
 
+BALLOON_SIZE_MM = 100
 
 def drive_to_baloon(bboxes, robot):
     print(bboxes)
@@ -11,7 +13,7 @@ def drive_to_baloon(bboxes, robot):
     baloon_midlle = baloon_left + 0.5 * baloon_right
     print('baloon_midlle ', baloon_midlle)
     turn_degree = 25 - baloon_midlle * 50
-    distance = 200 / (2 * bboxes['balloon'][2] * 0.466307658155)
+    distance = BALLOON_SIZE_MM / (2 * bboxes['balloon'][2] * 0.466307658155)
     robot.behavior.turn_in_place(degrees(turn_degree))
     print("Distanz:")
     print(distance)
@@ -45,12 +47,14 @@ def turn(robot):
 
 if __name__ == '__main__':
     args = anki_vector.util.parse_command_args()
-    with anki_vector.Robot(args.serial,
-                           behavior_control_level=ControlPriorityLevel.OVERRIDE_BEHAVIORS_PRIORITY) as robot:
-        
-        robot.behavior.say_text("Start")
-        robot.behavior.drive_off_charger()
-        prediction = img_prediction()
-        find_balloon(robot)
+    with behavior.ReserveBehaviorControl():
 
-        robot.behavior.say_text("End")
+        with anki_vector.Robot(args.serial,
+                            behavior_control_level=ControlPriorityLevel.OVERRIDE_BEHAVIORS_PRIORITY) as robot:
+            
+            robot.behavior.say_text("Start")
+            robot.behavior.drive_off_charger()
+            prediction = img_prediction()
+            find_balloon(robot)
+
+            robot.behavior.say_text("End")

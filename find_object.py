@@ -108,7 +108,7 @@ if __name__ == '__main__':
         print('WARNING!!!!: CLOSE IMAGES WITH ENTER TO CONITNUE PROGRAMM!!!!')
         prediction = img_prediction()
 
-        results = prediction.predict('./balloon_pic.jpg')
+        results = prediction.predict('./balloon_pic.jpg', robot)
         print(results)
         #draw_bounding_boxes('./balloon_pic.jpg', results)
         drive()
