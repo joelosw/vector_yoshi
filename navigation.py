@@ -2,6 +2,8 @@ import anki_vector
 from find_object import img_prediction
 from anki_vector.util import degrees, distance_mm, speed_mmps
 from anki_vector.connection import ControlPriorityLevel
+from anki_vector import behavior
+import time
 
 
 def drive_to_baloon(bboxes, robot):
@@ -44,13 +46,15 @@ def turn(robot):
     turn(robot)
 
 if __name__ == '__main__':
-    args = anki_vector.util.parse_command_args()
-    with anki_vector.Robot(args.serial,
-                           behavior_control_level=ControlPriorityLevel.OVERRIDE_BEHAVIORS_PRIORITY) as robot:
-        
-        robot.behavior.say_text("Start")
-        robot.behavior.drive_off_charger()
-        prediction = img_prediction()
-        find_balloon(robot)
+    with behavior.ReserveBehaviorControl():
+        args = anki_vector.util.parse_command_args()
+        with anki_vector.Robot(args.serial,
+                               behavior_control_level=ControlPriorityLevel.OVERRIDE_BEHAVIORS_PRIORITY) as robot:
+            robot.behavior.set_head_angle(degrees(10))
+            robot.behavior.set_lift_height(1.0)
+            robot.behavior.say_text("Start")
+            robot.behavior.drive_off_charger()
+            prediction = img_prediction()
+            find_balloon(robot)
 
-        robot.behavior.say_text("End")
+            robot.behavior.say_text("End")
