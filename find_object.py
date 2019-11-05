@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
         results = prediction.predict('./balloon_pic.jpg', robot)
         print(results)
-        #draw_bounding_boxes('./balloon_pic.jpg', results)
+        draw_bounding_boxes('./balloon_pic.jpg', results)
         drive()
 
 
