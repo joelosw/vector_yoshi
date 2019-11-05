@@ -31,17 +31,14 @@ class img_prediction(object):
         
 
 
-
-
-    def predict(self, img_path, robot):
-        #robot.camera.init_camera_feed()
-        #image = robot.camera.latest_image
+    def take_picture(robot, img_path = './baloon_pic.jpg'):
         image = robot.camera.capture_single_image()
-        #image.raw_image.show()
-        image.raw_image.save(img_path)
-        print("Schleife")
 
-        # Open the image and get back the prediction results as a dict with tuple (left, top, width, height)
+        image.raw_image.save(img_path)
+        return image
+
+    def predict_picture(self, robot, img_path  = './baloon_pic.jpg'):      
+      # Open the image and get back the prediction results as a dict with tuple (left, top, width, height)
         with open(img_path, mode="rb") as image_to_predict:
             results = self.predictor.detect_image('002e7a08-8696-4ca8-8769-fe0cbc2bd9b0', self.publish_iteration_name, image_to_predict)
 
@@ -61,6 +58,7 @@ class img_prediction(object):
 ##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
 ##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
 ##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
+
 def draw_bounding_boxes(im_path, result_dict):
     img = cv2.imread(im_path, cv2.IMREAD_COLOR)
     height, width, channels = img.shape
@@ -73,48 +71,44 @@ def draw_bounding_boxes(im_path, result_dict):
   
     window = cv2.namedWindow('image', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('image', 900, 900)
-    cv2.imshow('image',img)
+    cv2.imshow('image', img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 
-def drive_to_baloon(bboxes, robot):
-    baloon_left = bboxes['balloon'][0]
-    baloon_right = baloon_left + bboxes['balloon'][2]
-    baloon_midlle = baloon_left * 0.5 * baloon_right
-    turn_degree = 25 - baloon_midlle * 50
-    distance = 200 / (2 * bboxes['balloon'][2] * 0.466307658155)
-    print(turn_degree)
-    robot.behavior.turn_in_place(degrees(turn_degree))
-    print(distance)
-    robot.behavior.drive_straight(distance_mm(distance), speed_mmps(500))
+def robot_initiate(robot):
+    robot.behavior.set_head_angle(degrees(0.0))
+    robot.behavior.set_lift_height(1.0)
+    robot.behavior.drive_off_charger()
 
-def drive():
-    print("Drive")
-    robot.behavior.turn_in_place(degrees(90))
-    time.sleep(0.5)
-    print("I turned")
-    drive()
+def drive_to_baloon(robot, data):
+    robot.behavior.turn_in_place(degrees(data[0]))
+    robot.behavior.drive_straight(distance_mm(data[1]), speed_mmps(500))
 
 
+def evaluate_picture(robot, img_prediction, balloon_size = 100, path='./pic.jpg'):
 
-##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
-##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
-##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
-if __name__ == '__main__':
-    args = anki_vector.util.parse_command_args()
-    with anki_vector.Robot(args.serial, behavior_control_level=ControlPriorityLevel.OVERRIDE_BEHAVIORS_PRIORITY) as robot:
+    img_prediction.take_picture(robot, path)
 
-        print('WARNING!!!!: CLOSE IMAGES WITH ENTER TO CONITNUE PROGRAMM!!!!')
-        prediction = img_prediction()
+    results = img_prediction.predict_picture(robot, path)
 
+<<<<<<< HEAD:find_object.py
         results = prediction.predict('./balloon_pic.jpg', robot)
         print(results)
         draw_bounding_boxes('./balloon_pic.jpg', results)
         drive()
+=======
+    if results['balloon'] is None:
+        return None
+>>>>>>> 23cef476261071854869eddb4058b15a91f8a915:support.py
 
+    baloon_left = results['balloon'][0]
+    baloon_right = baloon_left + results['balloon'][2]
+    baloon_midlle = baloon_left * 0.5 * baloon_right
+    turn_degree = 25 - baloon_midlle * 50
+    distance = balloon_size / (2 * results['balloon'][2] * 0.466307658155)
 
-        results2 = prediction.predict('./balloon_and_robot.jpg')
-        print(results2)
-        draw_bounding_boxes('./balloon_and_robot.jpg', results2)
+    return (turn_degree, distance)
 
+def drive_and_check(robot, correction, distance=10):
+    robot.behavior.drive_straight(distance_mm(distance), speed_mmps(500))
