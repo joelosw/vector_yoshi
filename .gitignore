@@ -3,8 +3,6 @@ azure_config.txt
 venv
 .Rhistory
 balloon_pic.jpg
-<<<<<<< HEAD
 examples/.DS_Store
-=======
+__pycache__
 .idea
->>>>>>> f638be3ed29b3400b45995d2c9a1ecffe4bd6256
