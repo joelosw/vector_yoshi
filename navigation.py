@@ -57,4 +57,4 @@ if __name__ == '__main__':
             prediction = img_prediction()
             find_balloon(robot)
 
-            robot.behavior.say_text("End")
+            robot.behavior.say_text("Ende")
