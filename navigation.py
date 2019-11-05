@@ -47,6 +47,7 @@ if __name__ == '__main__':
     args = anki_vector.util.parse_command_args()
     with anki_vector.Robot(args.serial,
                            behavior_control_level=ControlPriorityLevel.OVERRIDE_BEHAVIORS_PRIORITY) as robot:
+        
         robot.behavior.say_text("Start")
         robot.behavior.drive_off_charger()
         prediction = img_prediction()
