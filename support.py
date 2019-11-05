@@ -31,7 +31,7 @@ class img_prediction(object):
         
 
 
-    def take_picture(robot, img_path = './baloon_pic.jpg'):
+    def take_picture(self, robot, img_path = './baloon_pic.jpg'):
         image = robot.camera.capture_single_image()
 
         image.raw_image.save(img_path)
