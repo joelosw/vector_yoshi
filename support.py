@@ -92,15 +92,9 @@ def evaluate_picture(robot, img_prediction, balloon_size = 100, path='./pic.jpg'
 
     results = img_prediction.predict_picture(robot, path)
 
-<<<<<<< HEAD:find_object.py
-        results = prediction.predict('./balloon_pic.jpg', robot)
-        print(results)
-        draw_bounding_boxes('./balloon_pic.jpg', results)
-        drive()
-=======
+
     if results['balloon'] is None:
         return None
->>>>>>> 23cef476261071854869eddb4058b15a91f8a915:support.py
 
     baloon_left = results['balloon'][0]
     baloon_right = baloon_left + results['balloon'][2]
