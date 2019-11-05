@@ -14,7 +14,7 @@ def drive_to_baloon(bboxes, robot):
     print('baloon_midlle ', baloon_midlle)
     turn_degree = 25 - baloon_midlle * 50
     distance = BALLOON_SIZE_MM / (2 * bboxes['balloon'][2] * 0.466307658155)
-    robot.behavior.turn_in_place(degrees(turn_degree))
+    robot.behavior.turn_in_place(degrees(turn_degree*1.3))
     print("Distanz:")
     print(distance)
     print(distance)
