@@ -18,12 +18,6 @@ class img_prediction(object):
 
         self.ENDPOINT = config_parser.get('CustomVision', 'endpoint')
 
-        #        self.training_key = config_parser.get('CustomVision', 'training_key')
-        #        self.prediction_key = config_parser.get('CustomVision', 'prediction_key')
-        #        self.prediction_resource_id = config_parser.get('CustomVision', 'ressource_id')
-        #        self.publish_iteration_name = config_parser.get('CustomVision', 'publish_iteration_name')
-        #        self.project_id = config_parser.get('CustomVision', 'project_id')
-
         self.training_key = config_parser.get('CustomVision', 'training_key')
         self.prediction_key = config_parser.get('CustomVision', 'prediction_key')
         self.prediction_resource_id = config_parser.get('CustomVision', 'ressource_id')
@@ -35,28 +29,24 @@ class img_prediction(object):
         self.predictor = CustomVisionPredictionClient(self.prediction_key, self.ENDPOINT)
     
         
-        
 
 
 
-    def predict(self, img_path):
-        with anki_vector.Robot() as robot:
-            robot.camera.init_camera_feed()
-            image = robot.camera.latest_image
-            image.raw_image.show()
-            image.raw_image.save(img_path)
+
+    def predict(self, img_path, robot):
+        #robot.camera.init_camera_feed()
+        #image = robot.camera.latest_image
+        image = robot.camera.capture_single_image()
+        #image.raw_image.show()
+        image.raw_image.save(img_path)
+        print("Schleife")
 
         # Open the image and get back the prediction results as a dict with tuple (left, top, width, height)
         with open(img_path, mode="rb") as image_to_predict:
             results = self.predictor.detect_image('002e7a08-8696-4ca8-8769-fe0cbc2bd9b0', self.publish_iteration_name, image_to_predict)
 
-<<<<<<< HEAD
         # Display the results, and return them as a dict (Tuple of four for ecery Tag)
-        tag_dict = dict()
-=======
-        # Display the results, and return them as a dict (Tuple of four for ecery Tag) 
         tag_dict = dict()   
->>>>>>> b12cb05cd7b81ce5720ee41abce24d43caa2c4bd
         for prediction in results.predictions:
             print("\t" + prediction.tag_name +
             ": {0:.2f}% bbox.left = {1:.2f}, bbox.top = {2:.2f}, bbox.width = {3:.2f}, bbox.height = {4:.2f}".format(prediction.probability * 100,
@@ -65,7 +55,6 @@ class img_prediction(object):
             if prediction.probability > probability:
                 probability = prediction.probability
                 tag_dict[prediction.tag_name] = (prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height)
-
         return tag_dict
 
 
@@ -101,15 +90,10 @@ def drive_to_baloon(bboxes, robot):
     robot.behavior.drive_straight(distance_mm(distance), speed_mmps(500))
 
 def drive():
-    i = 0
-    robot.behavior.turn_in_place(degrees(90))
-
+    print("Drive")
     robot.behavior.turn_in_place(degrees(90))
     time.sleep(0.5)
-    i += 1
     print("I turned")
-    #robot.behavior.drive_straight(100, speed_mmps(1))
-    robot.behavior.turn_in_place(degrees(90))
     drive()
 
 
@@ -122,15 +106,15 @@ if __name__ == '__main__':
     with anki_vector.Robot(args.serial, behavior_control_level=ControlPriorityLevel.OVERRIDE_BEHAVIORS_PRIORITY) as robot:
 
         print('WARNING!!!!: CLOSE IMAGES WITH ENTER TO CONITNUE PROGRAMM!!!!')
-        #prediction = img_prediction()
+        prediction = img_prediction()
 
-        #results = prediction.predict('./balloon_pic.jpg')
-        #print(results)
+        results = prediction.predict('./balloon_pic.jpg')
+        print(results)
         #draw_bounding_boxes('./balloon_pic.jpg', results)
         drive()
 
 
-        #results2 = prediction.predict('./balloon_and_robot.jpg')
-        #print(results2)
-        #draw_bounding_boxes('./balloon_and_robot.jpg', results2)
+        results2 = prediction.predict('./balloon_and_robot.jpg')
+        print(results2)
+        draw_bounding_boxes('./balloon_and_robot.jpg', results2)
 

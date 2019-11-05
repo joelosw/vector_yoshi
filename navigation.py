@@ -8,43 +8,48 @@ def drive_to_baloon(bboxes, robot):
     print(bboxes)
     baloon_left = bboxes['balloon'][0]
     baloon_right = baloon_left + bboxes['balloon'][2]
-    baloon_midlle = baloon_left + 0.5* baloon_right
-    print('baloon_midlle ' , baloon_midlle)
-    turn_degree = 25 - baloon_midlle*50
-    distance = 200/(2*bboxes['balloon'][2]*0.466307658155)
-    print(turn_degree)
+    baloon_midlle = baloon_left + 0.5 * baloon_right
+    print('baloon_midlle ', baloon_midlle)
+    turn_degree = 25 - baloon_midlle * 50
+    distance = 200 / (2 * bboxes['balloon'][2] * 0.466307658155)
     robot.behavior.turn_in_place(degrees(turn_degree))
+    print("Distanz:")
+    print(distance)
     print(distance)
     robot.behavior.drive_straight(distance_mm(distance), speed_mmps(500))
 
-def keep_searching(robot):
-    #Turns Vector in place at 50 degrees (left)
+
+
+def find_balloon(robot):
+    balloon = None
+    blue = None
+    try:
+        results = prediction.predict('./balloon_and_robot.jpg', robot)
+        balloon = results['balloon']
+
+    except KeyError:
+        print('no balloon')
+        pass
+    print('balloon: ', balloon)
     print("searchin'...")
-    robot.behavior.turn_in_place(degrees(50))
-    print('turned in place')
-    
+    if balloon == None:
+        robot.behavior.turn_in_place(degrees(50))
+        find_balloon(robot)
+    else:
+        drive_to_baloon(results, robot)
+
+def turn(robot):
+    print("Turn")
+    robot.behavior.turn_in_place(degrees(90))
+    turn(robot)
+
 if __name__ == '__main__':
     args = anki_vector.util.parse_command_args()
-    with anki_vector.Robot(args.serial, behavior_control_level=ControlPriorityLevel.OVERRIDE_BEHAVIORS_PRIORITY) as robot:
+    with anki_vector.Robot(args.serial,
+                           behavior_control_level=ControlPriorityLevel.OVERRIDE_BEHAVIORS_PRIORITY) as robot:
         robot.behavior.say_text("Start")
         robot.behavior.drive_off_charger()
         prediction = img_prediction()
-        balloon = None
-        while  balloon is None:
-            try:
-                results = prediction.predict()
-                balloon = results['balloon']
-                
-                break
-            except KeyError:
-                print('no balloon')
-                pass
-            print('balloon: ', balloon)
-            #keep_searching(robot)
-            print("searchin'...")
-            print("Truning")
-            #robot.behavior.say_text("Turning") #turn_in_place(degrees(45))
-            print("turned....bro")
-        drive_to_baloon(results, robot)   
-        robot.behavior.say_text("End")
+        find_balloon(robot)
 
+        robot.behavior.say_text("End")
