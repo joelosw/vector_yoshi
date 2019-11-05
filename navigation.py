@@ -6,7 +6,7 @@ from anki_vector import behavior
 
 BALLOON_SIZE_MM = 100
 
-def drive_to_baloon(bboxes, robot):
+def drive_towards_baloon(bboxes, robot, max_distance=100):
     print(bboxes)
     baloon_left = bboxes['balloon'][0]
     baloon_right = baloon_left + bboxes['balloon'][2]
@@ -14,6 +14,7 @@ def drive_to_baloon(bboxes, robot):
     print('baloon_midlle ', baloon_midlle)
     turn_degree = 25 - baloon_midlle * 50
     distance = BALLOON_SIZE_MM / (2 * bboxes['balloon'][2] * 0.466307658155)
+    distance = min(distance, max_distance)
     robot.behavior.turn_in_place(degrees(turn_degree*1.3))
     print("Distanz:")
     print(distance)
