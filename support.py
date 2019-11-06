@@ -81,7 +81,7 @@ def robot_initiate(robot):
     robot.behavior.set_lift_height(1.0)
     robot.behavior.drive_off_charger()
 
-def drive_to_baloon(robot, data):
+def drive_towards_baloon(robot, data, MAX_DRIVING_DISTANCE):
     robot.behavior.turn_in_place(degrees(data[0]))
     robot.behavior.drive_straight(distance_mm(data[1]), speed_mmps(500))
 
@@ -92,9 +92,12 @@ def evaluate_picture(robot, img_prediction, balloon_size = 100, path='./pic.jpg'
 
     results = img_prediction.predict_picture(robot, path)
 
+    try:
+        results['balloon']
 
-    if results['balloon'] is None:
+    except KeyError:
         return None
+        pass
 
     baloon_left = results['balloon'][0]
     baloon_right = baloon_left + results['balloon'][2]
