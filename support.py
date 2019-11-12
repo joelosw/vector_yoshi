@@ -101,11 +101,32 @@ def evaluate_picture(robot, img_prediction, balloon_size = 100, path='./pic.jpg'
 
     baloon_left = results['balloon'][0]
     baloon_right = baloon_left + results['balloon'][2]
-    baloon_midlle = baloon_left * 0.5 * baloon_right
+    baloon_midlle = (baloon_left + baloon_right)/2
     turn_degree = 25 - baloon_midlle * 50
     distance = balloon_size / (2 * results['balloon'][2] * 0.466307658155)
 
+    robot_left = results['robot'][0]
+    robot_right = robot_left * results['balloon'][2]
+    robot_middle = (robot_left + robot_right)/2
+
+    relation =""
+    if results['robot']:
+        relation = evaluate_relation_balloon_robot(baloon_left, baloon_right, baloon_midlle, robot_left, robot_right, robot_middle)
+    else:
+        relation = "back"
     return (turn_degree, distance)
+
+def evaluate_relation_balloon_robot(baloon_left, baloon_right, baloon_midlle, robot_left, robot_right, robot_middle):
+    relation = "";
+
+    if robot_middle > baloon_left and robot_middle < baloon_right:
+        relation = "front"
+    elif robot_middle > baloon_left and robot_middle > baloon_right:
+        relation = "to the right"
+    elif robot_middle < baloon_left:
+        relation = "to the left"
+
+    return  relation
 
 def drive_and_check(robot, correction, distance=10):
     robot.behavior.drive_straight(distance_mm(distance), speed_mmps(500))
