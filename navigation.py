@@ -4,6 +4,7 @@ import support
 from anki_vector.util import degrees, distance_mm, speed_mmps
 from anki_vector.connection import ControlPriorityLevel
 from anki_vector import behavior
+import time
 
 BALLOON_SIZE_MM = 100
 PICTURE_PATH = './balloon_pic.jpg'
@@ -27,9 +28,13 @@ if __name__ == '__main__':
             robot_initiate(robot)
 
             predictor = img_prediction(AZURE_CONFIG_FILE)
-            while True:
-                result = evaluate_picture(robot, predictor, BALLOON_SIZE_MM, PICTURE_PATH)
 
+
+            while True:
+                t  = time.time()
+                result = evaluate_picture(robot, predictor, BALLOON_SIZE_MM, PICTURE_PATH)
+                elapsed = time.time() - t
+                print('Time for Evaluation: ', elapsed)
                 if result is None:
                     result = search(robot, predictor)
 
