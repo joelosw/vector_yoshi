@@ -8,6 +8,7 @@ from azure.cognitiveservices.vision.customvision.training.models import ImageFil
 from azure.cognitiveservices.vision.customvision.prediction import CustomVisionPredictionClient
 import cv2
 from anki_vector.connection import ControlPriorityLevel
+import io
 
 ##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
 class img_prediction(object):
@@ -18,7 +19,7 @@ class img_prediction(object):
 
         self.ENDPOINT = config_parser.get('CustomVision', 'endpoint')
 
-        self.training_key = config_parser.get('CustomVision', 'training_key')
+        self.trainiimage_to_predictng_key = config_parser.get('CustomVision', 'training_key')
         self.prediction_key = config_parser.get('CustomVision', 'prediction_key')
         self.prediction_resource_id = config_parser.get('CustomVision', 'ressource_id')
         self.publish_iteration_name = config_parser.get('CustomVision', 'publish_iteration_name')
@@ -31,24 +32,28 @@ class img_prediction(object):
         
 
 
-    def take_picture(self, robot, img_path = './baloon_pic.jpg'):
-        image = robot.camera.capture_single_image()
+    def take_picture(self, robot):
+        
+        
+        image = robot.camera.latest_image.raw_image
 
-        image.raw_image.save(img_path)
-        return image
+        with io.BytesIO() as output:
+            image.save(output, 'BMP')
+            image_to_predict = output.getvalue()
+        
+        return image_to_predict
 
-    def predict_picture(self, robot, img_path  = './baloon_pic.jpg'):      
+    def predict_picture(self, robot, binary_image):      
       # Open the image and get back the prediction results as a dict with tuple (left, top, width, height)
-        with open(img_path, mode="rb") as image_to_predict:
-            results = self.predictor.detect_image('002e7a08-8696-4ca8-8769-fe0cbc2bd9b0', self.publish_iteration_name, image_to_predict)
-
+        results = self.predictor.detect_image('002e7a08-8696-4ca8-8769-fe0cbc2bd9b0', self.publish_iteration_name, binary_image)
+        probability = 0.5
         # Display the results, and return them as a dict (Tuple of four for ecery Tag)
         tag_dict = dict()   
         for prediction in results.predictions:
             print("\t" + prediction.tag_name +
             ": {0:.2f}% bbox.left = {1:.2f}, bbox.top = {2:.2f}, bbox.width = {3:.2f}, bbox.height = {4:.2f}".format(prediction.probability * 100,
             prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height))
-            probability = 0.5
+            
             if prediction.probability > probability:
                 probability = prediction.probability
                 tag_dict[prediction.tag_name] = (prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height)
@@ -80,17 +85,23 @@ def robot_initiate(robot):
     robot.behavior.set_head_angle(degrees(0.0))
     robot.behavior.set_lift_height(1.0)
     robot.behavior.drive_off_charger()
+    robot.camera.init_camera_feed()
+    robot.camera.image_streaming_enabled()
 
 def drive_towards_baloon(robot, data, MAX_DRIVING_DISTANCE):
     robot.behavior.turn_in_place(degrees(data[0]))
     robot.behavior.drive_straight(distance_mm(data[1]), speed_mmps(500))
 
 
-def evaluate_picture(robot, img_prediction, balloon_size = 100, path='./pic.jpg'):
+def evaluate_picture(robot, img_prediction, balloon_size = 100):
 
-    img_prediction.take_picture(robot, path)
+    t = time.time()
+    image = img_prediction.take_picture(robot)
 
-    results = img_prediction.predict_picture(robot, path)
+    results = img_prediction.predict_picture(robot, image)
+
+    elapsed = time.time() - t
+    print('----------Time for Prediction: ', elapsed, '------------')
 
     try:
         results['balloon']
@@ -103,6 +114,15 @@ def evaluate_picture(robot, img_prediction, balloon_size = 100, path='./pic.jpg'
     baloon_right = baloon_left + results['balloon'][2]
     baloon_midlle = (baloon_left + baloon_right)/2
 
+
+  
+
+
+    try:
+        results['robot']
+    
+    except KeyError:
+        return(-30, 500)
 
     robot_left = results['robot'][0]
     robot_right = robot_left * results['balloon'][2]

@@ -15,8 +15,10 @@ AZURE_CONFIG_FILE = './azure_config.txt'
 def search(robot, predictor):
     result_of_search = None
     while result_of_search is None:
+        print('Keep Searching, taking new picture')
         robot.behavior.turn_in_place(degrees(50))
-        result_of_search = evaluate_picture(robot, predictor, BALLOON_SIZE_MM, PICTURE_PATH)
+        result_of_search = evaluate_picture(robot, predictor, BALLOON_SIZE_MM)
+        print('Result of Search: ', result_of_search)
     return result_of_search
 
 if __name__ == '__main__':
@@ -30,13 +32,11 @@ if __name__ == '__main__':
             predictor = img_prediction(AZURE_CONFIG_FILE)
 
 
-            while True:
-                t  = time.time()
-                result = evaluate_picture(robot, predictor, BALLOON_SIZE_MM, PICTURE_PATH)
-                elapsed = time.time() - t
-                print('Time for Evaluation: ', elapsed)
+            while not robot.status.is_cliff_detected :
+                result = evaluate_picture(robot, predictor, BALLOON_SIZE_MM)
                 if result is None:
                     result = search(robot, predictor)
 
                 support.drive_towards_baloon(robot, result, MAX_DRIVING_DISTANCE)
 
+probability = 0.5
