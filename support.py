@@ -29,11 +29,9 @@ class img_prediction(object):
         
         self.predictor = CustomVisionPredictionClient(self.prediction_key, self.ENDPOINT)
     
-        
 
 
     def take_picture(self, robot):
-        
         
         image = robot.camera.latest_image.raw_image
 
@@ -65,6 +63,9 @@ class img_prediction(object):
 ##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
 
 def draw_bounding_boxes(im_path, result_dict):
+    ''' 
+    Nicht mehr genutzt.
+    '''
     img = cv2.imread(im_path, cv2.IMREAD_COLOR)
     height, width, channels = img.shape
     for result in result_dict.values():
@@ -108,25 +109,21 @@ def evaluate_picture(robot, img_prediction, balloon_size = 100):
 
     except KeyError:
         return None
-        pass
 
     baloon_left = results['balloon'][0]
     baloon_right = baloon_left + results['balloon'][2]
     baloon_midlle = (baloon_left + baloon_right)/2
 
-
-  
-
-
     try:
         results['robot']
-    
-    except KeyError:
-        return(-30, 500)
+        robot_left = results['robot'][0]
+        robot_right = robot_left + results['balloon'][2]
+        robot_middle = (robot_left + robot_right)/2
 
-    robot_left = results['robot'][0]
-    robot_right = robot_left * results['balloon'][2]
-    robot_middle = (robot_left + robot_right)/2
+    except KeyError:
+        results['robot'] = None
+        pass
+        #return(-30, 500)
 
     relation =""
     #TODO: enhanced adaption
@@ -134,19 +131,11 @@ def evaluate_picture(robot, img_prediction, balloon_size = 100):
         relation = evaluate_relation_balloon_robot(baloon_left, baloon_right, baloon_midlle, robot_left, robot_right, robot_middle)
     else:
         relation = "back"
-    if relation is "back":
-        turn_degree = 25 - baloon_midlle * 50
-        distance = balloon_size / (2 * results['balloon'][2] * 0.466307658155)
-    elif relation is "to the right":
-        turn_degree = 25 - baloon_midlle * 50 - 5
-    elif relation is "to the left":
-        turn_degree = 25 - baloon_midlle * 50 + 5
-    #TODO: Vorschlag: Roboter weicht minimal aus und gibt Vollgas, damit er nicht in die Position des "Verfolgten" gerät
-    else:
-        turn_degree = 2
 
+    turn_degree, distance = define_move(relation, baloon_midlle, balloon_size, results['balloon'][2])
 
     return (turn_degree, distance)
+
 
 def evaluate_relation_balloon_robot(baloon_left, baloon_right, baloon_midlle, robot_left, robot_right, robot_middle):
     relation = "";
@@ -159,6 +148,23 @@ def evaluate_relation_balloon_robot(baloon_left, baloon_right, baloon_midlle, ro
         relation = "to the left"
 
     return relation
+
+
+def define_move(relation, baloon_midlle, balloon_size, balloon_width):
+    if relation is "back":
+        turn_degree = 25 - baloon_midlle * 50
+    elif relation is "to the right":
+        turn_degree = 25 - baloon_midlle * 50 - 5
+    elif relation is "to the left":
+        turn_degree = 25 - baloon_midlle * 50 + 5
+    #TODO: Vorschlag: Roboter weicht minimal aus und gibt Vollgas, damit er nicht in die Position des "Verfolgten" gerät
+    else:
+        turn_degree = 2
+
+    distance = balloon_size / (2 * balloon_width * 0.466307658155)
+    print(distance)
+    return turn_degree, distance
+
 
 def drive_and_check(robot, correction, distance=10):
     robot.behavior.drive_straight(distance_mm(distance), speed_mmps(500))
