@@ -17,6 +17,12 @@ def search(robot, predictor):
     while result_of_search is None:
         robot.behavior.turn_in_place(degrees(50))
         result_of_search = evaluate_picture(robot, predictor, BALLOON_SIZE_MM, PICTURE_PATH)
+    i=0
+    while i<10:
+        print(i)
+        robot.behavior.drive_straight(distance_mm(100), speed_mmps(500))
+        i = i+1
+
     return result_of_search
 
 if __name__ == '__main__':

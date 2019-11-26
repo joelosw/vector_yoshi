@@ -104,27 +104,36 @@ def evaluate_picture(robot, img_prediction, balloon_size = 100, path='./pic.jpg'
     baloon_midlle = (baloon_left + baloon_right)/2
 
 
-    robot_left = results['robot'][0]
-    robot_right = robot_left * results['balloon'][2]
-    robot_middle = (robot_left + robot_right)/2
+
+    try:
+        results['balloon']
+        robot_left = results['robot'][0]
+        robot_right = robot_left * results['balloon'][2]
+        robot_middle = (robot_left + robot_right) / 2
+        relation = evaluate_relation_balloon_robot(baloon_left, baloon_right, baloon_midlle, robot_left, robot_right, robot_middle)
+
+    except KeyError:
+        relation = "back"
+        pass
+
 
     relation =""
     #TODO: enhanced adaption
-    if results['robot']:
-        relation = evaluate_relation_balloon_robot(baloon_left, baloon_right, baloon_midlle, robot_left, robot_right, robot_middle)
-    else:
-        relation = "back"
     if relation is "back":
         turn_degree = 25 - baloon_midlle * 50
         distance = balloon_size / (2 * results['balloon'][2] * 0.466307658155)
     elif relation is "to the right":
         turn_degree = 25 - baloon_midlle * 50 - 5
+        distance = balloon_size / (2 * results['balloon'][2] * 0.466307658155)
+
     elif relation is "to the left":
         turn_degree = 25 - baloon_midlle * 50 + 5
+        distance = balloon_size / (2 * results['balloon'][2] * 0.466307658155)
+
     #TODO: Vorschlag: Roboter weicht minimal aus und gibt Vollgas, damit er nicht in die Position des "Verfolgten" gerät
     else:
         turn_degree = 2
-
+        distance = balloon_size / (2 * results['balloon'][2] * 0.466307658155)
 
     return (turn_degree, distance)
 
