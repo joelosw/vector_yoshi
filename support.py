@@ -167,6 +167,7 @@ def evaluate_relation_balloon_robot(baloon_left, baloon_right, baloon_midlle, ro
 
     return relation
 
+
 def drive_and_check(robot, correction, distance=10):
     robot.behavior.drive_straight(distance_mm(distance), speed_mmps(500))
 
