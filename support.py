@@ -9,6 +9,9 @@ from azure.cognitiveservices.vision.customvision.prediction import CustomVisionP
 import cv2
 from anki_vector.connection import ControlPriorityLevel
 import io
+import navigation
+
+INITIALIZED = False
 
 ##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
 class img_prediction(object):
@@ -95,13 +98,13 @@ def drive_towards_baloon(robot, data, MAX_DRIVING_DISTANCE):
 
 def evaluate_picture(robot, img_prediction, balloon_size = 100):
 
-    t = time.time()
+    #t = time.time()
     image = img_prediction.take_picture(robot)
 
     results = img_prediction.predict_picture(robot, image)
 
-    elapsed = time.time() - t
-    print('----------Time for Prediction: ', elapsed, '------------')
+    #elapsed = time.time() - t
+    #print('----------Time for Prediction: ', elapsed, '------------')
 
     try:
         results['balloon']
@@ -128,6 +131,10 @@ def evaluate_picture(robot, img_prediction, balloon_size = 100):
     robot_right = robot_left * results['balloon'][2]
     robot_middle = (robot_left + robot_right)/2
 
+    if INITIALIZED:
+        navigation.BALLOON_SIZE_MM = calculateBalloonSize(results['robot'][3], results['balloon'][3])
+
+
     relation =""
     #TODO: enhanced adaption
     if results['robot']:
@@ -145,8 +152,8 @@ def evaluate_picture(robot, img_prediction, balloon_size = 100):
     else:
         turn_degree = 2
 
-
     return (turn_degree, distance)
+
 
 def evaluate_relation_balloon_robot(baloon_left, baloon_right, baloon_midlle, robot_left, robot_right, robot_middle):
     relation = "";
@@ -162,3 +169,7 @@ def evaluate_relation_balloon_robot(baloon_left, baloon_right, baloon_midlle, ro
 
 def drive_and_check(robot, correction, distance=10):
     robot.behavior.drive_straight(distance_mm(distance), speed_mmps(500))
+
+def calculateBalloonSize(robotHeight, balloonHeight):
+    INITIALIZED = True
+    return balloonHeight/robotHeight*660
