@@ -38,10 +38,10 @@ class img_prediction(object):
         with io.BytesIO() as output:
             image.save(output, 'BMP')
             image_to_predict = output.getvalue()
-        
+
         return image_to_predict
 
-    def predict_picture(self, robot, binary_image):      
+    def predict_picture(self, robot, binary_image):
       # Open the image and get back the prediction results as a dict with tuple (left, top, width, height)
         results = self.predictor.detect_image('002e7a08-8696-4ca8-8769-fe0cbc2bd9b0', self.publish_iteration_name, binary_image)
         probability = 0.5
@@ -51,7 +51,7 @@ class img_prediction(object):
             print("\t" + prediction.tag_name +
             ": {0:.2f}% bbox.left = {1:.2f}, bbox.top = {2:.2f}, bbox.width = {3:.2f}, bbox.height = {4:.2f}".format(prediction.probability * 100,
             prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height))
-            
+
             if prediction.probability > probability:
                 probability = prediction.probability
                 tag_dict[prediction.tag_name] = (prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height)
