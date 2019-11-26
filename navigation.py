@@ -11,6 +11,7 @@ PICTURE_PATH = './balloon_pic.jpg'
 MAX_DRIVING_DISTANCE = 100;
 AZURE_CONFIG_FILE = './azure_config.txt'
 
+ROBOT_HEIGHT = 657
 
 def search(robot, predictor):
     result_of_search = None
