@@ -54,7 +54,7 @@ class img_prediction(object):
         # Display the results, and return them as a dict (Tuple of four for ecery Tag)
         tag_dict = dict()   
         for prediction in results.predictions:
-            print("\t" + prediction.tag_name +
+            print("\t ----ONLINE PREDICTION---" + prediction.tag_name +
             ": {0:.2f}% bbox.left = {1:.2f}, bbox.top = {2:.2f}, bbox.width = {3:.2f}, bbox.height = {4:.2f}".format(prediction.probability * 100,
             prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height))
 
@@ -77,8 +77,12 @@ class offline_img_prediction(object):
     @staticmethod
     def offline_predict(image):
         image = Image.open(image)
+        tag_dict = dict()
         predictions = offline_img_prediction.od_model.predict_image(image)
-        print(predictions)
+        print('---OFFLINE RESULTS---\n', predictions)
+        for prediction in predictions:
+                tag_dict[prediction.tagTame] = (prediction.boundingBox.left, prediction.boundingBox.top, prediction.boundingBox.width, prediction.boundingBox.height)
+        return tag_dict
 
 
 ##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
@@ -118,15 +122,18 @@ def drive_towards_baloon(robot, data, MAX_DRIVING_DISTANCE):
 
 
 def evaluate_picture(robot, img_prediction, balloon_size = 100):
+    image = img_prediction.take_picture(robot)
+    
+    t = time.time()
+    results = img_prediction.predict_picture(robot, image)
+    elapsed = time.time() - t
+    print('----------Time for Online Prediction: ', elapsed, '------------')
 
     t = time.time()
-    image = img_prediction.take_picture(robot)
-
-    results = img_prediction.predict_picture(robot, image)
-
+    result2 = offline_img_prediction.offline_predict(image)
     elapsed = time.time() - t
-    print('----------Time for Prediction: ', elapsed, '------------')
-
+    print('----------Time for Online Prediction: ', elapsed, '------------')
+    
     try:
         results['balloon']
 
