@@ -10,6 +10,9 @@ import cv2
 from anki_vector.connection import ControlPriorityLevel
 import io
 import navigation
+import tensorflow as tf
+from PIL import Image
+from offline_predict import TFObjectDetection
 
 INITIALIZED = False
 
@@ -59,6 +62,23 @@ class img_prediction(object):
                 probability = prediction.probability
                 tag_dict[prediction.tag_name] = (prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height)
         return tag_dict
+
+class offline_img_prediction(object):
+    graph_def = tf.compat.v1.GraphDef()
+    with tf.io.gfile.GFile('model.pb', 'rb') as f:
+        graph_def.ParseFromString(f.read())
+
+    # Load labels
+    with open('labels.txt', 'r') as f:
+        labels = [l.strip() for l in f.readlines()]
+    print('opened labels: ', labels)
+    od_model = TFObjectDetection(graph_def, labels)
+
+    @staticmethod
+    def offline_predict(image):
+        image = Image.open(image)
+        predictions = offline_img_prediction.od_model.predict_image(image)
+        print(predictions)
 
 
 ##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
