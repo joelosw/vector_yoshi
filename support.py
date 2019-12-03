@@ -41,15 +41,21 @@ class img_prediction(object):
 
         #image = robot.camera.latest_image.raw_image
         image = robot.camera.capture_single_image().raw_image
+        print("image Type: ", type(image))
 
         with io.BytesIO() as output:
             image.save(output, 'BMP')
             image_to_predict = output.getvalue()
-        with open("testImage.jpg", 'wb+') as file:
-            image.save(file)
+
         return image_to_predict
 
-    def predict_picture(self, robot, binary_image):
+    def take_picture_offline(self, robot):
+
+        image = robot.camera.capture_single_image().raw_image
+
+        return image
+
+    def predict_picture(self, binary_image):
       # Open the image and get back the prediction results as a dict with tuple (left, top, width, height)
         results = self.predictor.detect_image('002e7a08-8696-4ca8-8769-fe0cbc2bd9b0', self.publish_iteration_name, binary_image)
         probability = 0.5
@@ -78,7 +84,10 @@ class offline_img_prediction(object):
 
     @staticmethod
     def offline_predict(image):
-        image = Image.open("testImage.jpg")
+        # image1 = Image.open("testImage.jpg")
+        # image2 = image
+        # print("img1: ", type(image1), "\timg2: ", type(image2))
+
         tag_dict = dict()
         predictions = offline_img_prediction.od_model.predict_image(image)
         print('---OFFLINE RESULTS---\n', predictions)
@@ -124,15 +133,16 @@ def drive_towards_baloon(robot, data, MAX_DRIVING_DISTANCE):
 
 
 def evaluate_picture(robot, img_prediction, balloon_size = 100):
-    image = img_prediction.take_picture(robot)
+    online_image = img_prediction.take_picture(robot)
+    offline_image = img_prediction.take_picture_offline(robot)
     
     t = time.time()
-    results = img_prediction.predict_picture(robot, image)
+    results = img_prediction.predict_picture(online_image)
     elapsed = time.time() - t
     print('----------Time for Online Prediction: ', elapsed, '------------')
 
     t = time.time()
-    result2 = offline_img_prediction.offline_predict(image)
+    result2 = offline_img_prediction.offline_predict(offline_image)
     elapsed = time.time() - t
     print('----------Time for Offline Prediction: ', elapsed, '------------')
     
