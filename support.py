@@ -39,7 +39,8 @@ class img_prediction(object):
 
     def take_picture(self, robot):
 
-        image = robot.camera.latest_image.raw_image
+        #image = robot.camera.latest_image.raw_image
+        image = robot.camera.capture_single_image().raw_image
 
         with io.BytesIO() as output:
             image.save(output, 'BMP')
@@ -82,7 +83,7 @@ class offline_img_prediction(object):
         predictions = offline_img_prediction.od_model.predict_image(image)
         print('---OFFLINE RESULTS---\n', predictions)
         for prediction in predictions:
-                tag_dict[prediction.tagTame] = (prediction.boundingBox.left, prediction.boundingBox.top, prediction.boundingBox.width, prediction.boundingBox.height)
+                tag_dict[prediction['tagName']] = (prediction['boundingBox']['left'], prediction['boundingBox']['top'], prediction['boundingBox']['width'], prediction['boundingBox']['height'])
         return tag_dict
 
 
@@ -114,8 +115,8 @@ def robot_initiate(robot):
     robot.behavior.set_head_angle(degrees(0.0))
     robot.behavior.set_lift_height(1.0)
     robot.behavior.drive_off_charger()
-    robot.camera.init_camera_feed()
-    robot.camera.image_streaming_enabled()
+    #robot.camera.init_camera_feed()
+    #robot.camera.image_streaming_enabled()
 
 def drive_towards_baloon(robot, data, MAX_DRIVING_DISTANCE):
     robot.behavior.turn_in_place(degrees(data[0]))
@@ -197,7 +198,7 @@ def define_move(relation, baloon_midlle, balloon_size, balloon_width):
         turn_degree = 2
 
     distance = balloon_size / (2 * balloon_width * 0.466307658155)
-    print("Distanz:" +distance)
+    print("Distanz:", distance)
     return turn_degree, distance
 
 
