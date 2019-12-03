@@ -132,7 +132,7 @@ def evaluate_picture(robot, img_prediction, balloon_size = 100):
     t = time.time()
     result2 = offline_img_prediction.offline_predict(image)
     elapsed = time.time() - t
-    print('----------Time for Online Prediction: ', elapsed, '------------')
+    print('----------Time for Offline Prediction: ', elapsed, '------------')
     
     try:
         results['balloon']
