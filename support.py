@@ -44,7 +44,8 @@ class img_prediction(object):
         with io.BytesIO() as output:
             image.save(output, 'BMP')
             image_to_predict = output.getvalue()
-
+        with open("testImage.jpg", 'wb+') as file:
+            image.save(file)
         return image_to_predict
 
     def predict_picture(self, robot, binary_image):
@@ -76,7 +77,7 @@ class offline_img_prediction(object):
 
     @staticmethod
     def offline_predict(image):
-        image = Image.open(image)
+        image = Image.open("testImage.jpg")
         tag_dict = dict()
         predictions = offline_img_prediction.od_model.predict_image(image)
         print('---OFFLINE RESULTS---\n', predictions)

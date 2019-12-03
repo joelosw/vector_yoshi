@@ -1,3 +1,4 @@
 anki-vector==0.6.0
 azure-cognitiveservices-vision-customvision
 opencv-python
+tensorflow
