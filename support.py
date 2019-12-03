@@ -68,7 +68,7 @@ class offline_img_prediction(object):
     graph_def = tf.compat.v1.GraphDef()
     with tf.io.gfile.GFile('model.pb', 'rb') as f:
         graph_def.ParseFromString(f.read())
-
+    print('--------OFFLINE PREDICT INITIIALIZED--------')
     # Load labels
     with open('labels.txt', 'r') as f:
         labels = [l.strip() for l in f.readlines()]
