@@ -1,7 +1,7 @@
 import configparser
 import anki_vector
 import time
-from anki_vector.util import degrees, distance_mm, speed_mmps
+from anki_vector.util import degrees, distance_mm, speed_mmps, Pose, Angle
 from anki_vector import behavior
 from azure.cognitiveservices.vision.customvision.training import CustomVisionTrainingClient
 from azure.cognitiveservices.vision.customvision.training.models import ImageFileCreateEntry, Region
@@ -13,6 +13,7 @@ import navigation
 import tensorflow as tf
 from PIL import Image
 from offline_predict import TFObjectDetection
+
 
 INITIALIZED = False
 
@@ -127,10 +128,29 @@ def robot_initiate(robot):
     #robot.camera.init_camera_feed()
     #robot.camera.image_streaming_enabled()
 
+
+def return_from_cliff(robot):
+    robot.behavior.turn_in_place(180)
+    robot.behavior.drive_straight(100)
+
 def drive_towards_baloon(robot, data, MAX_DRIVING_DISTANCE):
     robot.behavior.turn_in_place(degrees(data[0]))
-    robot.behavior.drive_straight(distance_mm(data[1]), speed_mmps(500))
-
+    #robot.behavior.drive_straight(distance_mm(data[1]), speed_mmps(500))
+    v_0 = 200
+    a = 3/2 * (v_0**2 / data[1])
+    print("*******************Acceleration:",a)
+    robot.motors.set_wheel_motors(v_0, v_0, 0, 0)
+    #pose = Pose(x = data[1], y = 0, z = 0)
+    #robot.behavior.go_to_pose(pose, relative_to_robot=True)
+    t = time.time()
+    print("------------Distanz:", data[1])
+    while (time.time() < t + (v_0/a)): #(data[1]/65)):
+        #print(time.time()-t)
+        if (robot.status.is_cliff_detected):
+            robot.motors.set_wheel_motors(-10,-10)
+            return_from_cliff(robot)
+    robot.motors.stop_all_motors()
+    
 
 def evaluate_picture(robot, img_prediction, balloon_size = 100):
     online_image = img_prediction.take_picture(robot)
@@ -162,13 +182,14 @@ def evaluate_picture(robot, img_prediction, balloon_size = 100):
         robot_right = robot_left + results['balloon'][2]
         robot_middle = (robot_left + robot_right)/2
 
+        if not INITIALIZED:
+            navigation.BALLOON_SIZE_MM = calculateBalloonSize(results['robot'][3], results['balloon'][3])
+            print("--------------new balloon size------------",navigation.BALLOON_SIZE_MM)
+
     except KeyError:
         results['robot'] = None
         pass
         #return(-30, 500)
-
-    if INITIALIZED:
-        navigation.BALLOON_SIZE_MM = calculateBalloonSize(results['robot'][3], results['balloon'][3])
 
 
     relation =""

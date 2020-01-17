@@ -4,7 +4,6 @@ import support
 from anki_vector.util import degrees, distance_mm, speed_mmps
 from anki_vector.connection import ControlPriorityLevel
 from anki_vector import behavior
-import time
 
 BALLOON_SIZE_MM = 100
 PICTURE_PATH = './balloon_pic.jpg'
@@ -39,5 +38,5 @@ if __name__ == '__main__':
                     result = search(robot, predictor)
 
                 support.drive_towards_baloon(robot, result, MAX_DRIVING_DISTANCE)
-
+            
 probability = 0.5
