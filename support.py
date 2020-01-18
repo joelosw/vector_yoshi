@@ -10,6 +10,7 @@ import cv2
 from anki_vector.connection import ControlPriorityLevel
 import io
 import navigation
+from navigation import BALLOON_SIZE_MM
 import tensorflow as tf
 from PIL import Image
 from offline_predict import TFObjectDetection
@@ -143,16 +144,22 @@ def drive_towards_baloon(robot, data, MAX_DRIVING_DISTANCE):
     #pose = Pose(x = data[1], y = 0, z = 0)
     #robot.behavior.go_to_pose(pose, relative_to_robot=True)
     t = time.time()
-    print("------------Distanz:", data[1])
+    #print("------------Distanz:", data[1])
+    spoken = False
     while (time.time() < t + (v_0/a)): #(data[1]/65)):
         #print(time.time()-t)
+        if not spoken: 
+            if data[1] > 350:
+                robot.audio.stream_wav_file("vector_shutdown.wav", 100)
+                spoken = True
         if (robot.status.is_cliff_detected):
             robot.motors.set_wheel_motors(-10,-10)
             return_from_cliff(robot)
     robot.motors.stop_all_motors()
     
+    
 
-def evaluate_picture(robot, img_prediction, balloon_size = navigation.BALLOON_SIZE_MM):
+def evaluate_picture(robot, img_prediction, balloon_size = BALLOON_SIZE_MM):
     #online_image = img_prediction.take_picture(robot)
     offline_image = img_prediction.take_picture_offline(robot)
     
@@ -185,7 +192,7 @@ def evaluate_picture(robot, img_prediction, balloon_size = navigation.BALLOON_SI
         if not INITIALIZED:
             navigation.BALLOON_SIZE_MM = calculateBalloonSize(results['robot'][3], results['balloon'][3])
             print("--------------new balloon size------------",navigation.BALLOON_SIZE_MM)
-            balloon_size = navigation.BALLOON_SIZE_MM
+            balloon_size = BALLOON_SIZE_MM
 
     except KeyError:
         results['robot'] = None
