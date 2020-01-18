@@ -152,17 +152,17 @@ def drive_towards_baloon(robot, data, MAX_DRIVING_DISTANCE):
     robot.motors.stop_all_motors()
     
 
-def evaluate_picture(robot, img_prediction, balloon_size = 100):
-    online_image = img_prediction.take_picture(robot)
+def evaluate_picture(robot, img_prediction, balloon_size = navigation.BALLOON_SIZE_MM):
+    #online_image = img_prediction.take_picture(robot)
     offline_image = img_prediction.take_picture_offline(robot)
     
-    t = time.time()
-    results = img_prediction.predict_picture(online_image)
-    elapsed = time.time() - t
-    print('----------Time for Online Prediction: ', elapsed, '------------')
+    #t = time.time()
+    #result2 = img_prediction.predict_picture(online_image)
+    #elapsed = time.time() - t
+    #print('----------Time for Online Prediction: ', elapsed, '------------')
 
     t = time.time()
-    result2 = offline_img_prediction.offline_predict(offline_image)
+    results = offline_img_prediction.offline_predict(offline_image)
     elapsed = time.time() - t
     print('----------Time for Offline Prediction: ', elapsed, '------------')
     
@@ -185,6 +185,7 @@ def evaluate_picture(robot, img_prediction, balloon_size = 100):
         if not INITIALIZED:
             navigation.BALLOON_SIZE_MM = calculateBalloonSize(results['robot'][3], results['balloon'][3])
             print("--------------new balloon size------------",navigation.BALLOON_SIZE_MM)
+            balloon_size = navigation.BALLOON_SIZE_MM
 
     except KeyError:
         results['robot'] = None
@@ -219,11 +220,11 @@ def evaluate_relation_balloon_robot(baloon_left, baloon_right, baloon_midlle, ro
 
 def define_move(relation, baloon_midlle, balloon_size, balloon_width):
     if relation is "back":
-        turn_degree = 25 - baloon_midlle * 50
+        turn_degree = 48 - baloon_midlle * 96
     elif relation is "to the right":
-        turn_degree = 25 - baloon_midlle * 50 - 5
+        turn_degree = 48 - baloon_midlle * 96 - 5
     elif relation is "to the left":
-        turn_degree = 25 - baloon_midlle * 50 + 5
+        turn_degree = 48 - baloon_midlle * 96 + 5
     #TODO: Vorschlag: Roboter weicht minimal aus und gibt Vollgas, damit er nicht in die Position des "Verfolgten" gerät
     else:
         turn_degree = 2
@@ -233,7 +234,7 @@ def define_move(relation, baloon_midlle, balloon_size, balloon_width):
     return turn_degree, distance
 
 
-
+########### not used ############
 def drive_and_check(robot, correction, distance=10):
     robot.behavior.drive_straight(distance_mm(distance), speed_mmps(500))
 

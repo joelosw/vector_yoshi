@@ -16,7 +16,7 @@ def search(robot, predictor):
     result_of_search = None
     while result_of_search is None:
         print('Keep Searching, taking new picture')
-        robot.behavior.turn_in_place(degrees(50))
+        robot.behavior.turn_in_place(degrees(96))
         result_of_search = evaluate_picture(robot, predictor, BALLOON_SIZE_MM)
         print('Result of Search: ', result_of_search)
     return result_of_search
@@ -32,7 +32,7 @@ if __name__ == '__main__':
             predictor = img_prediction(AZURE_CONFIG_FILE)
 
 
-            while not robot.status.is_cliff_detected :
+            while True: #not robot.status.is_cliff_detected:
                 result = evaluate_picture(robot, predictor, BALLOON_SIZE_MM)
                 if result is None:
                     result = search(robot, predictor)
