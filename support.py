@@ -1,6 +1,7 @@
 import configparser
 import anki_vector
 import time
+import threading
 from anki_vector.util import degrees, distance_mm, speed_mmps, Pose, Angle
 from anki_vector import behavior
 from azure.cognitiveservices.vision.customvision.training import CustomVisionTrainingClient
@@ -75,7 +76,7 @@ class img_prediction(object):
 
 class offline_img_prediction(object):
     graph_def = tf.compat.v1.GraphDef()
-    with tf.io.gfile.GFile('model.pb', 'rb') as f:
+    with tf.io.gfile.GFile('model7.pb', 'rb') as f:
         graph_def.ParseFromString(f.read())
     print('--------OFFLINE PREDICT INITIIALIZED--------')
     # Load labels
@@ -98,10 +99,6 @@ class offline_img_prediction(object):
         return tag_dict
 
 
-##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
-##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
-##### CLOSE IMAGES WITH ENTER TO CONTINUE ##########
-
 def draw_bounding_boxes(im_path, result_dict):
     '''
     Nicht mehr genutzt.
@@ -123,9 +120,10 @@ def draw_bounding_boxes(im_path, result_dict):
 
 
 def robot_initiate(robot):
+    robot.behavior.drive_off_charger()
     robot.behavior.set_head_angle(degrees(0.0))
     robot.behavior.set_lift_height(1.0)
-    robot.behavior.drive_off_charger()
+    
     #robot.camera.init_camera_feed()
     #robot.camera.image_streaming_enabled()
 
@@ -144,35 +142,39 @@ def drive_towards_baloon(robot, data, MAX_DRIVING_DISTANCE):
     #pose = Pose(x = data[1], y = 0, z = 0)
     #robot.behavior.go_to_pose(pose, relative_to_robot=True)
     t = time.time()
-    #print("------------Distanz:", data[1])
     spoken = False
     while (time.time() < t + (v_0/a)): #(data[1]/65)):
         #print(time.time()-t)
         if not spoken: 
-            if data[1] > 350:
-                robot.audio.stream_wav_file("vector_shutdown.wav", 100)
-                spoken = True
+            if data[1] > 400:                
+                spoken = threading.Thread(target=shutdown(robot))
         if (robot.status.is_cliff_detected):
             robot.motors.set_wheel_motors(-10,-10)
             return_from_cliff(robot)
     robot.motors.stop_all_motors()
     
-    
+def shutdown(robot):
+    try:
+        robot.audio.stream_wav_file("vector_shutdown.wav", 100)
+        return True
+    except:
+        return False
+
 
 def evaluate_picture(robot, img_prediction, balloon_size = BALLOON_SIZE_MM):
     #online_image = img_prediction.take_picture(robot)
     offline_image = img_prediction.take_picture_offline(robot)
-    
+
     #t = time.time()
     #result2 = img_prediction.predict_picture(online_image)
     #elapsed = time.time() - t
-    #print('----------Time for Online Prediction: ', elapsed, '------------')
-
+    #print('----------Time for Online Prediction: ', on_pred, '------------')
+    #on_pred.append(elapsed)
     t = time.time()
     results = offline_img_prediction.offline_predict(offline_image)
     elapsed = time.time() - t
     print('----------Time for Offline Prediction: ', elapsed, '------------')
-    
+    #off_pred.append(elapsed)
     try:
         results['balloon']
 
