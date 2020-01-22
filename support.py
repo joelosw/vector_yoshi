@@ -145,9 +145,9 @@ def drive_towards_baloon(robot, data, MAX_DRIVING_DISTANCE):
     spoken = False
     while (time.time() < t + (v_0/a)): #(data[1]/65)):
         #print(time.time()-t)
-        if not spoken: 
-            if data[1] > 400:                
-                spoken = threading.Thread(target=shutdown(robot))
+        #if not spoken: 
+            #if data[1] > 400:                
+                #spoken = threading.Thread(target=shutdown(robot))
         if (robot.status.is_cliff_detected):
             robot.motors.set_wheel_motors(-10,-10)
             return_from_cliff(robot)
