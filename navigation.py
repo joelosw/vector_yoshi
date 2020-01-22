@@ -42,7 +42,7 @@ if __name__ == '__main__':
                 if result is None:
                     result = search(robot, predictor)
 
-
-                support.drive_towards_baloon(robot, result, MAX_DRIVING_DISTANCE)
+                #support.drive_towards_baloon(robot, result, MAX_DRIVING_DISTANCE)
+                support.drive_towards_pose(robot, result, MAX_DRIVING_DISTANCE)
             
 probability = 0.5
