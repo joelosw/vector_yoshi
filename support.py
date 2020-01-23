@@ -61,7 +61,8 @@ class img_prediction(object):
     def predict_picture(self, binary_image):
       # Open the image and get back the prediction results as a dict with tuple (left, top, width, height)
         results = self.predictor.detect_image('002e7a08-8696-4ca8-8769-fe0cbc2bd9b0', self.publish_iteration_name, binary_image)
-        probability = 0.5
+        probability_b = 0.5
+        probability_r = 0.5
         # Display the results, and return them as a dict (Tuple of four for ecery Tag)
         tag_dict = dict()   
         for prediction in results.predictions:
@@ -69,14 +70,22 @@ class img_prediction(object):
             ": {0:.2f}% bbox.left = {1:.2f}, bbox.top = {2:.2f}, bbox.width = {3:.2f}, bbox.height = {4:.2f}".format(prediction.probability * 100,
             prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height))
 
-            if prediction.probability > probability:
-                probability = prediction.probability
-                tag_dict[prediction.tag_name] = (prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height)
+            if prediction.tag_name == 'balloon':
+                if prediction.probability > probability_b:
+                    probability_b = prediction.probability
+                    tag_dict[prediction.tag_name] = (prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height)
+            
+            if prediction.tag_name == 'robot':
+                if prediction.probability > probability_r:
+                    probability_r = prediction.probability
+                    tag_dict[prediction.tag_name] = (prediction.bounding_box.left, prediction.bounding_box.top, prediction.bounding_box.width, prediction.bounding_box.height)
+        
+
         return tag_dict
 
 class offline_img_prediction(object):
     graph_def = tf.compat.v1.GraphDef()
-    with tf.io.gfile.GFile('model7.pb', 'rb') as f:
+    with tf.io.gfile.GFile('model8.pb', 'rb') as f:
         graph_def.ParseFromString(f.read())
     print('--------OFFLINE PREDICT INITIIALIZED--------')
     # Load labels
@@ -160,18 +169,65 @@ def shutdown(robot):
     except:
         return False
 
+def drive_towards_pose(robot, data, MAX_DRIVING_DISTANCE):
+    direct = data[0]
+    dist = min(data[1], MAX_DRIVING_DISTANCE)
+    relation = data[2]
+    
+    print (relation)
+    if relation == 'front':
+        # pose1 = Pose(x = dist/2, y = max(dist/3,100), z = 0, angle_z=anki_vector.util.Angle(degrees=0))
+        # robot.behavior.go_to_pose(pose1, relative_to_robot=True)
+        # robot.behavior.set_lift_height(1.0)
+        # pose2 = Pose(x = dist/2, y = -max(dist/3,100), z = 0, angle_z = Angle(degrees = 30))
+        # robot.behavior.go_to_pose(pose2, relative_to_robot=True)
+        # robot.behavior.set_lift_height(1.0)
+        robot.behavior.turn_in_place(degrees(data[0]))
+        robot.behavior.turn_in_place(degrees(45))
+        robot.behavior.drive_straight(distance_mm(dist/2+100), speed_mmps(250))
+        robot.behavior.turn_in_place(degrees(-90))
+        robot.behavior.drive_straight(distance_mm(dist/2+100), speed_mmps(250))
+        robot.behavior.turn_in_place(degrees(-135))
+
+
+    else: 
+        drive_towards_baloon(robot, (direct, dist), MAX_DRIVING_DISTANCE)
+
+    # if relation == 'back':
+    #     pose = Pose(x = dist, y = 0, z = 0, angle_z = Angle(degrees = 0))
+    #     robot.behavior.go_to_pose(pose, relative_to_robot=True)
+    #     robot.behavior.set_lift_height(1.0)
+    # else:
+    #     if relation == 'front':
+    #         pose1 = Pose(x = dist/2, y = max(dist/4,50), z = 0, angle_z=anki_vector.util.Angle(degrees=0))
+    #         pose2 = Pose(x = dist/2, y = -max(dist/4,50), z = 0, angle_z = Angle(degrees = 30))
+            
+    #     elif relation == 'to the left':
+    #         pose1 = Pose(x = dist/2, y = -max(dist/4,50), z = 0, angle_z=anki_vector.util.Angle(degrees=0))
+    #         pose2 = Pose(x = dist/2, y = max(dist/4,50), z = 0, angle_z = Angle(degrees = 80))
+
+    #     elif relation == 'to the right':
+    #         pose1 = Pose(x = dist/2, y = max(dist/4,50), z = 0, angle_z=anki_vector.util.Angle(degrees=0))
+    #         pose2 = Pose(x = dist/2, y = -max(dist/4,50), z = 0, angle_z = Angle(degrees = 260))
+            
+    #     robot.behavior.go_to_pose(pose1, relative_to_robot=True)
+    #     robot.behavior.go_to_pose(pose2, relative_to_robot=True)
+    #     robot.behavior.set_lift_height(1.0) 
+    
+    
 
 def evaluate_picture(robot, img_prediction, balloon_size = BALLOON_SIZE_MM):
-    online_image = img_prediction.take_picture(robot)
+    balloon_size = BALLOON_SIZE_MM
+    #online_image = img_prediction.take_picture(robot)
     offline_image = img_prediction.take_picture_offline(robot)
 
     #t = time.time()
-    results = img_prediction.predict_picture(online_image)
+    #results2 = img_prediction.predict_picture(online_image)
     #elapsed = time.time() - t
     #print('----------Time for Online Prediction: ', on_pred, '------------')
     #on_pred.append(elapsed)
     t = time.time()
-    results2 = offline_img_prediction.offline_predict(offline_image)
+    results = offline_img_prediction.offline_predict(offline_image)
     elapsed = time.time() - t
     print('----------Time for Offline Prediction: ', elapsed, '------------')
     #off_pred.append(elapsed)
@@ -191,10 +247,11 @@ def evaluate_picture(robot, img_prediction, balloon_size = BALLOON_SIZE_MM):
         robot_right = robot_left + results['balloon'][2]
         robot_middle = (robot_left + robot_right)/2
 
-        if not INITIALIZED:
-            navigation.BALLOON_SIZE_MM = calculateBalloonSize(results['robot'][3], results['balloon'][3])
-            print("--------------new balloon size------------",navigation.BALLOON_SIZE_MM)
-            balloon_size = BALLOON_SIZE_MM
+        # if not INITIALIZED:
+        #     navigation.BALLOON_SIZE_MM = calculateBalloonSize(results['robot'][3], results['balloon'][3])
+        #     #INITIALIZED = True
+        #     print("--------------new balloon size------------",navigation.BALLOON_SIZE_MM)
+            
 
     except KeyError:
         results['robot'] = None
@@ -211,7 +268,7 @@ def evaluate_picture(robot, img_prediction, balloon_size = BALLOON_SIZE_MM):
 
     turn_degree, distance = define_move(relation, baloon_midlle, balloon_size, results['balloon'][2])
 
-    return (turn_degree, distance)
+    return (turn_degree, distance, relation)
 
 
 def evaluate_relation_balloon_robot(baloon_left, baloon_right, baloon_midlle, robot_left, robot_right, robot_middle):
@@ -228,11 +285,11 @@ def evaluate_relation_balloon_robot(baloon_left, baloon_right, baloon_midlle, ro
 
 
 def define_move(relation, baloon_midlle, balloon_size, balloon_width):
-    if relation is "back":
+    if relation == "back":
         turn_degree = 48 - baloon_midlle * 96
-    elif relation is "to the right":
+    elif relation == "to the right":
         turn_degree = 48 - baloon_midlle * 96 - 5
-    elif relation is "to the left":
+    elif relation == "to the left":
         turn_degree = 48 - baloon_midlle * 96 + 5
     #TODO: Vorschlag: Roboter weicht minimal aus und gibt Vollgas, damit er nicht in die Position des "Verfolgten" gerät
     else:
@@ -249,4 +306,5 @@ def drive_and_check(robot, correction, distance=10):
 
 def calculateBalloonSize(robotHeight, balloonHeight):
     INITIALIZED = True
-    return balloonHeight/robotHeight*660
+    print('Calculated BALLOON SIZE: ', balloonHeight/robotHeight*66)
+    return balloonHeight/robotHeight*66
