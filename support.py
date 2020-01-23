@@ -120,9 +120,10 @@ def draw_bounding_boxes(im_path, result_dict):
 
 
 def robot_initiate(robot):
-    robot.behavior.drive_off_charger()
+    
     robot.behavior.set_head_angle(degrees(0.0))
     robot.behavior.set_lift_height(1.0)
+    robot.behavior.drive_off_charger()
     
     #robot.camera.init_camera_feed()
     #robot.camera.image_streaming_enabled()
@@ -145,13 +146,13 @@ def drive_towards_baloon(robot, data, MAX_DRIVING_DISTANCE):
     spoken = False
     while (time.time() < t + (v_0/a)): #(data[1]/65)):
         #print(time.time()-t)
-        #if not spoken: 
-            #if data[1] > 400:                
-                #spoken = threading.Thread(target=shutdown(robot))
-        if (robot.status.is_cliff_detected):
-            robot.motors.set_wheel_motors(-10,-10)
-            return_from_cliff(robot)
-    robot.motors.stop_all_motors()
+        if not spoken: 
+            if data[1] > 400:                
+                spoken = threading.Thread(target=shutdown(robot))
+        #if (robot.status.is_cliff_detected):
+        #    robot.motors.set_wheel_motors(-10,-10)
+        #    return_from_cliff(robot)
+    robot.motors.set_wheel_motors(0,0)
 
 def drive_towards_pose(robot, data, MAX_DRIVING_DISTANCE):
     direct = data[0]
