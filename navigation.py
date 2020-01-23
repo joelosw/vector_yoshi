@@ -14,18 +14,23 @@ ROBOT_HEIGHT = 657
 
 def search(robot, predictor):
     result_of_search = None
+    i = 1
     while result_of_search is None:
         print('Keep Searching, taking new picture')
+        if i>=4:
+            robot.behavior.drive_straight(distance_mm(100), speed_mmps(150))
+            i=1
         robot.behavior.turn_in_place(degrees(96))
         result_of_search = evaluate_picture(robot, predictor, BALLOON_SIZE_MM)
         print('Result of Search: ', result_of_search)
+        i+=1
     return result_of_search
 
 if __name__ == '__main__':
     args = anki_vector.util.parse_command_args()
     with behavior.ReserveBehaviorControl():
 
-        with anki_vector.Robot(args.serial,
+        with anki_vector.Robot(args.serial, name='Vector-N8G2',
                             behavior_control_level=ControlPriorityLevel.OVERRIDE_BEHAVIORS_PRIORITY) as robot:
             robot_initiate(robot)
 

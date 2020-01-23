@@ -148,9 +148,9 @@ def drive_towards_baloon(robot, data, MAX_DRIVING_DISTANCE):
         if not spoken: 
             if data[1] > 400:                
                 spoken = threading.Thread(target=shutdown(robot))
-        if (robot.status.is_cliff_detected):
-            robot.motors.set_wheel_motors(-10,-10)
-            return_from_cliff(robot)
+        #if (robot.status.is_cliff_detected):
+        #    robot.motors.set_wheel_motors(-10,-10)
+        #    return_from_cliff(robot)
     robot.motors.stop_all_motors()
     
 def shutdown(robot):
@@ -162,16 +162,16 @@ def shutdown(robot):
 
 
 def evaluate_picture(robot, img_prediction, balloon_size = BALLOON_SIZE_MM):
-    #online_image = img_prediction.take_picture(robot)
+    online_image = img_prediction.take_picture(robot)
     offline_image = img_prediction.take_picture_offline(robot)
 
     #t = time.time()
-    #result2 = img_prediction.predict_picture(online_image)
+    results = img_prediction.predict_picture(online_image)
     #elapsed = time.time() - t
     #print('----------Time for Online Prediction: ', on_pred, '------------')
     #on_pred.append(elapsed)
     t = time.time()
-    results = offline_img_prediction.offline_predict(offline_image)
+    results2 = offline_img_prediction.offline_predict(offline_image)
     elapsed = time.time() - t
     print('----------Time for Offline Prediction: ', elapsed, '------------')
     #off_pred.append(elapsed)
