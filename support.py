@@ -129,9 +129,10 @@ def draw_bounding_boxes(im_path, result_dict):
 
 
 def robot_initiate(robot):
-    robot.behavior.drive_off_charger()
+    
     robot.behavior.set_head_angle(degrees(0.0))
     robot.behavior.set_lift_height(1.0)
+    robot.behavior.drive_off_charger()
     
     #robot.camera.init_camera_feed()
     #robot.camera.image_streaming_enabled()
@@ -161,7 +162,9 @@ def drive_towards_baloon(robot, data, MAX_DRIVING_DISTANCE):
         #    robot.motors.set_wheel_motors(-10,-10)
         #    return_from_cliff(robot)
     robot.motors.stop_all_motors()
+
     
+
 def shutdown(robot):
     try:
         robot.audio.stream_wav_file("vector_shutdown.wav", 100)
@@ -226,11 +229,17 @@ def evaluate_picture(robot, img_prediction, balloon_size = BALLOON_SIZE_MM):
     #elapsed = time.time() - t
     #print('----------Time for Online Prediction: ', on_pred, '------------')
     #on_pred.append(elapsed)
+
     t = time.time()
-    results = offline_img_prediction.offline_predict(offline_image)
+    results = img_prediction.predict_picture(online_image)
     elapsed = time.time() - t
-    print('----------Time for Offline Prediction: ', elapsed, '------------')
-    #off_pred.append(elapsed)
+    print('----------Time for Online Prediction: ', elapsed, '------------')
+    
+    #t = time.time()
+    #result2 = offline_img_prediction.offline_predict(offline_image)
+    #elapsed = time.time() - t
+    #print('----------Time for Offline Prediction: ', elapsed, '------------')
+    
     try:
         results['balloon']
 
@@ -262,13 +271,17 @@ def evaluate_picture(robot, img_prediction, balloon_size = BALLOON_SIZE_MM):
     relation =""
     #TODO: enhanced adaption
     if results['robot']:
+        print('ROBOT GEFUNDEN')
         relation = evaluate_relation_balloon_robot(baloon_left, baloon_right, baloon_midlle, robot_left, robot_right, robot_middle)
     else:
         relation = "back"
+    print (relation)
 
-    turn_degree, distance = define_move(relation, baloon_midlle, balloon_size, results['balloon'][2])
+    #turn_degree, distance = define_move(relation, baloon_midlle, balloon_size, results['balloon'][2])
+    turn_degree, distance, angle = define_pose(relation, baloon_midlle, balloon_size, results['balloon'][2])
 
     return (turn_degree, distance, relation)
+
 
 
 def evaluate_relation_balloon_robot(baloon_left, baloon_right, baloon_midlle, robot_left, robot_right, robot_middle):
@@ -299,6 +312,26 @@ def define_move(relation, baloon_midlle, balloon_size, balloon_width):
     print("Distanz:", distance)
     return turn_degree, distance
 
+def define_pose(relation, balloon_middle, balloon_size, balloon_width):
+    if relation is "back":
+        turn_degree = 48 - balloon_middle * 96
+        angle = 0
+    elif relation is "to the right":
+        turn_degree = 48 - balloon_middle * 96 - 5
+        angle = 270
+    elif relation is "to the left":
+        turn_degree = 48 - balloon_middle * 96 + 5
+        angle = 90
+    else: 
+        """front"""
+        turn_degree = 48 - balloon_middle * 96
+        angle = 180
+
+    distance = balloon_size / (2 * balloon_width * 0.466307658155)
+    print("Distanz:", distance)
+    print("Turn Degree:", turn_degree)
+    print("Angle:", angle)
+    return turn_degree, distance, angle
 
 ########### not used ############
 def drive_and_check(robot, correction, distance=10):

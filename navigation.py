@@ -14,8 +14,14 @@ ROBOT_HEIGHT = 657
 
 def search(robot, predictor):
     result_of_search = None
+    
     i = 1
+
     while result_of_search is None:
+        if i>2:
+            robot.behavior.drive_straight(distance_mm(150), speed_mmps(250))
+            i=0
+        i += 1
         print('Keep Searching, taking new picture')
         if i>=4:
             robot.behavior.drive_straight(distance_mm(200), speed_mmps(150))
@@ -41,6 +47,8 @@ if __name__ == '__main__':
                 result = evaluate_picture(robot, predictor, BALLOON_SIZE_MM)
                 if result is None:
                     result = search(robot, predictor)
+
+                #support.drive_towards_baloon(robot, result, MAX_DRIVING_DISTANCE)
 
                 support.drive_towards_pose(robot, result, MAX_DRIVING_DISTANCE)
             
