@@ -1,14 +1,10 @@
 # Yoshi
 
-Project for the Mario Cart Challenge
+Project for the Mario Kart Challenge
 by Nico, Felix, Joel
 
-     Höhe Ballon abhängig von Roboter-Höhe [X]
-     Relation von Position des Roboters und des Ballons []
-     Fortbewegungsstrategie abhängig von der Relation []
-     Einschalten des Entfernungsmessers [X]
-     Bezug von klaren Fotos [X]
-     Herunterladen des Modells [X]
-     Bild ohne Zwischenspeicherung []
+Using an Anki Vector (with the Vector SDK) and Azure Custom Vision to play a game of Mario Kart balloon battle. 
+
+The essential logic is implemented in navigation.py, most of the utillity functions are implemented in support.py. 
    
 
