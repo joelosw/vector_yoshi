@@ -1,3 +1,9 @@
+""" 
+The main class for the yoshi vector. The elementary logic is implemented here, 
+while most utility functions are located in support.py
+"""
+
+
 import anki_vector
 from support import *
 import support
@@ -11,8 +17,31 @@ MAX_DRIVING_DISTANCE = 1500;
 AZURE_CONFIG_FILE = './azure_config.txt'
 
 ROBOT_HEIGHT = 657
+probability = 0.5
+
 
 def search(robot, predictor):
+    """ 
+    Keeps turning around and looking for the ballon/robot. 
+    If there has been no result for 4 rotations (more than 360°) 
+    the robot moves a few centimeters to be a harder target
+    
+    Parameters
+    ----------
+    robot: anki_vector.Robot
+        The robot instance that should be controlled
+    
+    predictor: support.img_prediction or support.offline_img_preiction
+        An initialized instance that can make predictions, using the azure cloud or alternatively GCV.
+    
+    
+    Returns
+    -------
+    json
+        The bounding boxes of detected robots/balloons
+    
+    """
+
     result_of_search = None
     
     i = 1
@@ -33,6 +62,16 @@ def search(robot, predictor):
     return result_of_search
 
 if __name__ == '__main__':
+    """ 
+    Main functions that controls the fundamental behaviour.
+    First the robot is initialized with maximum priority and surpressed idle behaviour. 
+    In a loop:
+        Take initial picture
+        If no balloon found:
+            Keeps searching for an robot/balloon. 
+        When a balloon is found, the position is estimated. 
+        Then calling a method to drive to the calculated position.
+    """
     args = anki_vector.util.parse_command_args()
     with behavior.ReserveBehaviorControl(serial = '008014c1', ip='192.168.0.106'):
 
@@ -43,13 +82,10 @@ if __name__ == '__main__':
             predictor = img_prediction(AZURE_CONFIG_FILE)
 
 
-            while True: #not robot.status.is_cliff_detected:
+            while True:
                 result = evaluate_picture(robot, predictor, BALLOON_SIZE_MM)
                 if result is None:
                     result = search(robot, predictor)
 
-                #support.drive_towards_baloon(robot, result, MAX_DRIVING_DISTANCE)
-
                 support.drive_towards_pose(robot, result, MAX_DRIVING_DISTANCE)
             
-probability = 0.5
