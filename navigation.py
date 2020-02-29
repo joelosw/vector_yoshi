@@ -45,7 +45,7 @@ def search(robot, predictor):
 
     result_of_search = None
     
-    i = 1
+    i = 0
 
     while result_of_search is None:
         if i>2:
@@ -57,7 +57,6 @@ def search(robot, predictor):
         robot.behavior.turn_in_place(degrees(96))
         result_of_search = evaluate_picture(robot, predictor, BALLOON_SIZE_MM)
         print('Result of Search: ', result_of_search)
-        i+=1
     return result_of_search
 
 if __name__ == '__main__':
