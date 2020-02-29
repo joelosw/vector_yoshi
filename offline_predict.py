@@ -46,6 +46,9 @@ def main(image_filename):
 
 
 if __name__ == '__main__':
+    """ 
+    Testing the Prediction with a Sample Image
+    """
     if len(sys.argv) <= 1:
         print('USAGE: {} image_filename'.format(sys.argv[0]))
         path = '/home/joel/Downloads/IMG_20191020_162221_970.jpg'

@@ -3,7 +3,8 @@ import math
 
 
 class ObjectDetection(object):
-    """Basic abstract class!
+    """
+    Basic abstract class!
     """
 
     ANCHORS = np.array([[0.573, 0.677], [1.87, 2.06], [3.34, 5.47], [7.88, 3.53], [9.77, 9.17]])
@@ -29,7 +30,8 @@ class ObjectDetection(object):
         return np.where(x > 0, 1 / (1 + np.exp(-x)), np.exp(x) / (1 + np.exp(x)))
 
     def _non_maximum_suppression(self, boxes, class_probs, max_detections):
-        """Remove overlapping bouding boxes
+        """
+        Remove bounding boxes that go beyond the bounding box limit
         """
         assert len(boxes) == len(class_probs)
 
@@ -139,7 +141,8 @@ class ObjectDetection(object):
         raise NotImplementedError
 
     def postprocess(self, prediction_outputs):
-        """ Extract bounding boxes from the model outputs.
+        """ 
+        Extract bounding boxes from the model outputs.
 
         Args:
             prediction_outputs: Output from the object detection model. (H x W x C)

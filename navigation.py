@@ -15,7 +15,8 @@ BALLOON_SIZE_MM = 100
 PICTURE_PATH = './balloon_pic.jpg'
 MAX_DRIVING_DISTANCE = 1500;
 AZURE_CONFIG_FILE = './azure_config.txt'
-
+IP_ADDRESS = '192.168.0.106'
+SERIAL = '008014c1'
 ROBOT_HEIGHT = 657
 probability = 0.5
 
@@ -73,9 +74,9 @@ if __name__ == '__main__':
         Then calling a method to drive to the calculated position.
     """
     args = anki_vector.util.parse_command_args()
-    with behavior.ReserveBehaviorControl(serial = '008014c1', ip='192.168.0.106'):
+    with behavior.ReserveBehaviorControl(serial = SERIAL, ip=IP_ADDRESS):
 
-        with anki_vector.Robot(serial = '008014c1', name='Vector-N8G2', ip='192.168.0.106',
+        with anki_vector.Robot(serial = SERIAL, name='Vector-N8G2', ip=IP_ADDRESS,
                             behavior_control_level=ControlPriorityLevel.OVERRIDE_BEHAVIORS_PRIORITY) as robot:
             robot_initiate(robot)
 
