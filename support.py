@@ -1,6 +1,6 @@
 """
 All necessary utilities (take and evaluate a picture, estimate position, drive towards position,...)
-are implemented in this modul
+are implemented in this module
 """
 
 import configparser
@@ -26,7 +26,7 @@ INITIALIZED = False
 
 class img_prediction(object):
     """ 
-    A class to perform a neccessary stept to evaluate an picte:
+    A class to perform a neccessary step to evaluate a picture:
     Initialize a connection to cloud model
     1. Take a picture (in online or offline format)
     2. Evaluate the picture online
@@ -371,12 +371,12 @@ def drive_towards_pose(robot, data, MAX_DRIVING_DISTANCE=600):
 
 def evaluate_picture(robot, img_prediction, balloon_size=BALLOON_SIZE_MM):
     """ 
-    Fundamental function that does the entire picturae evaluation process
+    Fundamental function that does the entire picture evaluation process
     this includes: 
         1. Taking a picture
         2. Getting information about the content
         3. Dynamically setting the balloon size
-        4. Calculating the turn degree ind distance
+        4. Calculating the turn degree and distance
         5. Evaluating the relation of robot and balloon
 
     Optional: Uncomment for online image prediction
@@ -431,7 +431,7 @@ def evaluate_picture(robot, img_prediction, balloon_size=BALLOON_SIZE_MM):
     try:
         results['robot']
         robot_left = results['robot'][0]
-        robot_right = robot_left + results['balloon'][2]
+        robot_right = robot_left + results['robot'][2]
         robot_middle = (robot_left + robot_right)/2
 
          if not INITIALIZED:

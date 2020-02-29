@@ -53,9 +53,7 @@ def search(robot, predictor):
             i=0
         i += 1
         print('Keep Searching, taking new picture')
-        if i>=4:
-            robot.behavior.drive_straight(distance_mm(200), speed_mmps(150))
-            i=1
+        
         robot.behavior.turn_in_place(degrees(96))
         result_of_search = evaluate_picture(robot, predictor, BALLOON_SIZE_MM)
         print('Result of Search: ', result_of_search)
